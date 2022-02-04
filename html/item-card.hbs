@@ -24,12 +24,14 @@
 	{{/if}}
 	<div class="mars5e-targets">
 		{{#if targets}}
-		<div class="mars5e-apply-dmg-menu mars5e-apply-all">
+		{{#if damage}}
+		<div class="mars5e-apply-menu mars5e-apply-all">
 			<button class="mars5e-apply" data-amount="0"><i class="fas fa-fist-raised"></i></button>
 			{{#if damage.versatile}}
 			<button class="mars5e-apply-versatile" data-amount="0"><i class="fas fa-sign-language"></i></button>
 			{{/if}}
 		</div>
+		{{/if}}
 		{{/if}}
 		<div class="mars5e-reapply-btn">
 		<button class=""><i class="fas fa-redo-alt"></i><i class="fas fa-drumstick-bite"></i></button>
@@ -46,7 +48,7 @@
                 <div class='mars5e-target'>
                     <div class='mars5e-action utility mars5e-toggleable'>
                         <label>{{ localize "DND5E.Use" }} {{item.name}}</label>
-                        <a class='rollable'">{{formula.formula}}</a>
+                        <a class="rollable" data-formula="{{formula.formula}}">{{formula.formula}}</a>
                     </div>
                 </div>
             {{/if}}
@@ -62,5 +64,9 @@
 		{{#each targets}}
 		{{> 'modules/mars-5e/html/chat/targets.hbs' target=this data=@root}}
 		{{/each}}
+		{{!-- Generic effect applier buttons --}}
+		{{#unless targets.length}}
+			{{> 'modules/mars-5e/html/chat/effects.hbs' effects}}
+		{{/unless}} 
 	</div>
 </div>

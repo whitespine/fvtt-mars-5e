@@ -216,6 +216,23 @@
 
       backdrop-filter: blur(0.3em);
     }
+    &.target-effects .effect-button {
+      flex: 0 0 30px;
+      height: 30px;
+      background-size: 30px;
+      border: none;
+      margin-right: 5px;
+      border-radius: 20%;
+      &:hover {
+        box-shadow: 0 0 8px var(--color-shadow-primary);
+      }
+    }
+    &.target-effects .effect-label {
+      align-self: center;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
   }
 
   .damage {
@@ -257,7 +274,7 @@
     }
     position: relative;
 
-    .mars5e-apply-dmg-menu {
+    .mars5e-apply-menu {
       left: -3.5ch;
       top: 2ch;
     }
@@ -269,7 +286,7 @@
       }
     }
   }
-  .mars5e-apply-dmg-menu,
+  .mars5e-apply-menu,
   .mars5e-reapply-btn {
     position: absolute;
     flex: 0;
@@ -323,10 +340,10 @@
 
   .mars5e-area-dmg {
     label,
-    .mars5e-apply-dmg-menu {
+    .mars5e-apply-menu {
       pointer-events: none;
     }
-    .mars5e-apply-dmg-menu {
+    .mars5e-apply-menu {
       display: none;
     }
   }
@@ -432,8 +449,8 @@
   }
 }
 
-.mars5e-gm .mars5e-target:hover .mars5e-apply-dmg-menu,
-.mars5e-gm .mars5e-apply-dmg-menu:hover,
+.mars5e-gm .mars5e-target:hover .mars5e-apply-menu,
+.mars5e-gm .mars5e-apply-menu:hover,
 .mars5e-gm .mars5e-targets:hover .mars5e-apply-all,
 .mars5e-targets:hover .mars5e-reapply-btn {
   opacity: 1;

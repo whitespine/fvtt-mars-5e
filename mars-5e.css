@@ -100,7 +100,7 @@
 .mars5e-player .mars5e-target.mars5e-hidden-target:not(.mars5e-area-dmg) {
   min-height: calc(4em + 3px);
 }
-.mars5e-player .mars5e-card .damage .mars5e-apply-dmg-menu {
+.mars5e-player .mars5e-card .damage .mars5e-apply-menu {
   display: none;
 }
 .mars5e-player .mars5e-invisible-target {
@@ -165,7 +165,6 @@
 }
 
 
-@charset "UTF-8";
 .mars-5e-statistics .window-content {
   color: var(--mars5e-font-color);
 }
@@ -190,10 +189,10 @@
   display: table-row;
 }
 .mars-5e-statistics th[data-sort-direction="1"]:after {
-  content: "";
+  content: "\f0dd";
 }
 .mars-5e-statistics th[data-sort-direction="0"]:after {
-  content: "";
+  content: "\f0de";
 }
 .mars-5e-statistics th[data-sort-direction="1"]:after,
 .mars-5e-statistics th[data-sort-direction="0"]:after {
@@ -328,7 +327,7 @@
   text-rendering: auto;
   line-height: 1;
   font-weight: 900;
-  content: "";
+  content: "\f522";
   opacity: 0.6;
   padding-right: 0.3ch;
 }
@@ -444,6 +443,23 @@
   visibility: visible;
   backdrop-filter: blur(0.3em);
 }
+.mars5e-card .mars5e-action.target-effects .effect-button {
+  flex: 0 0 30px;
+  height: 30px;
+  background-size: 30px;
+  border: none;
+  margin-right: 5px;
+  border-radius: 20%;
+}
+.mars5e-card .mars5e-action.target-effects .effect-button:hover {
+  box-shadow: 0 0 8px var(--color-shadow-primary);
+}
+.mars5e-card .mars5e-action.target-effects .effect-label {
+  align-self: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 .mars5e-card .damage {
   position: relative;
 }
@@ -479,7 +495,7 @@
   width: 0;
   font-size: 0.9em;
 }
-.mars5e-card .damage .mars5e-apply-dmg-menu {
+.mars5e-card .damage .mars5e-apply-menu {
   left: -3.5ch;
   top: 2ch;
 }
@@ -487,7 +503,7 @@
   /* prettier-ignore */
   content: var(--mars5e-apply-label) " " var(--mars5e-versatile-label) ": " attr(data-amount);
 }
-.mars5e-card .mars5e-apply-dmg-menu,
+.mars5e-card .mars5e-apply-menu,
 .mars5e-card .mars5e-reapply-btn {
   position: absolute;
   flex: 0;
@@ -498,7 +514,7 @@
   transition: all 0.15s 0.6s ease-in;
   font-size: 0.9em;
 }
-.mars5e-card .mars5e-apply-dmg-menu button,
+.mars5e-card .mars5e-apply-menu button,
 .mars5e-card .mars5e-reapply-btn button {
   background: var(--mars5e-tooltip-bg-color);
   color: var(--mars5e-tooltip-font-color);
@@ -517,12 +533,12 @@
   cursor: pointer;
   position: relative;
 }
-.mars5e-card .mars5e-apply-dmg-menu button i,
+.mars5e-card .mars5e-apply-menu button i,
 .mars5e-card .mars5e-reapply-btn button i {
   margin: 0.2em;
   font-size: 1.3em;
 }
-.mars5e-card .mars5e-apply-dmg-menu button:before,
+.mars5e-card .mars5e-apply-menu button:before,
 .mars5e-card .mars5e-reapply-btn button:before {
   content: var(--mars5e-apply-label) ": " attr(data-amount);
   background: var(--mars5e-tooltip-bg-color);
@@ -544,13 +560,13 @@
   visibility: hidden;
   height: min-content;
 }
-.mars5e-card .mars5e-apply-dmg-menu button:hover:before,
+.mars5e-card .mars5e-apply-menu button:hover:before,
 .mars5e-card .mars5e-reapply-btn button:hover:before {
   opacity: 1;
   transition: opacity 0.15s 1.2s ease-in;
   visibility: visible;
 }
-.mars5e-card .mars5e-apply-dmg-menu button:before,
+.mars5e-card .mars5e-apply-menu button:before,
 .mars5e-card .mars5e-reapply-btn button:before {
   z-index: 1;
   top: -1.7em;
@@ -559,15 +575,15 @@
   width: fit-content;
   max-width: calc(272px - 4em);
 }
-.mars5e-card .mars5e-apply-dmg-menu button:hover:before,
+.mars5e-card .mars5e-apply-menu button:hover:before,
 .mars5e-card .mars5e-reapply-btn button:hover:before {
   transition-delay: 0s;
 }
 .mars5e-card .mars5e-area-dmg label,
-.mars5e-card .mars5e-area-dmg .mars5e-apply-dmg-menu {
+.mars5e-card .mars5e-area-dmg .mars5e-apply-menu {
   pointer-events: none;
 }
-.mars5e-card .mars5e-area-dmg .mars5e-apply-dmg-menu {
+.mars5e-card .mars5e-area-dmg .mars5e-apply-menu {
   display: none;
 }
 .mars5e-card .mars5e-result {
@@ -655,8 +671,8 @@
   transform: rotate(45deg);
 }
 
-.mars5e-gm .mars5e-target:hover .mars5e-apply-dmg-menu,
-.mars5e-gm .mars5e-apply-dmg-menu:hover,
+.mars5e-gm .mars5e-target:hover .mars5e-apply-menu,
+.mars5e-gm .mars5e-apply-menu:hover,
 .mars5e-gm .mars5e-targets:hover .mars5e-apply-all,
 .mars5e-targets:hover .mars5e-reapply-btn {
   opacity: 1;
@@ -680,7 +696,7 @@
   text-rendering: auto;
   line-height: 1;
   font-weight: 900;
-  content: "";
+  content: "\f06e";
 }
 .mars5e-gm .mars5e-gm-target:hover .target-header .mars5e-toggle-target-visibility {
   opacity: 1;
@@ -690,7 +706,7 @@
   background: var(--mars5e-invis-target-background-color);
 }
 .mars5e-gm .mars5e-gm-target.mars5e-invisible-target .mars5e-toggle-target-visibility:after {
-  content: "";
+  content: "\f070";
 }
 .mars5e-gm .mars5e-gm-target .mars5e-result {
   cursor: text;

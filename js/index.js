@@ -194,6 +194,7 @@ Hooks.once("init", () => {
   loadTemplates([
     "modules/mars-5e/html/chat/targets.hbs",
     "modules/mars-5e/html/chat/dmg.hbs",
+    "modules/mars-5e/html/chat/effects.hbs",
   ]);
   Mars5eUserStatistics.initHooks();
 });

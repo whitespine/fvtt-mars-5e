@@ -50,6 +50,16 @@ export default function initItemClass() {
       } else return chatData;
     }
 
+    // Get all transfer effects we'd apply
+    get _nonTransferEffects() {
+      return this.effects.contents.filter(eff => !eff.data.transfer);
+    }
+
+    // If this item has effects to transfer to targets
+    get hasTargetEffects() {
+      return this._nonTransferEffects.length > 0;
+    }
+
     async _getTemplateData() {
       const adv = mars5e.getAdvantage();
 
@@ -66,9 +76,11 @@ export default function initItemClass() {
         item: this.data,
         data: this.getChatData(),
         labels: this.labels,
+        effects: this._nonTransferEffects,
         hasAttack: this.hasAttack,
         isHealing: this.isHealing,
         hasDamage: this.hasDamage,
+        hasTargetEffects: this.hasTargetEffects,
         isVersatile: this.isVersatile,
         isSpell: this.data.type === "spell",
         hasSave: this.hasSave,
@@ -109,7 +121,7 @@ export default function initItemClass() {
         // why so complicated? since the roll function gets called from the spell as upcast variant (meaning: level is set to the upcast level)
         let spellLevel = null;
         if (this.type === "spell") {
-          const origItem = this.actor.getOwnedItem(this.id);
+          const origItem = this.actor.items.get(this.id);
 
           if (origItem.data.data.level !== this.data.data.level) {
             spellLevel = this.data.data.level;
@@ -130,9 +142,17 @@ export default function initItemClass() {
         templateData.hasDamage ||
         templateData.hasAttack ||
         templateData.hasSave ||
-        templateData.isHealing
+        templateData.isHealing || 
+        templateData.hasTargetEffects
       ) {
-        templateData.targets = Array.from(game.user.targets).map((target) =>
+        let targets = game.user.targets;
+
+        // Default targets to first of active tokens if no targets, and target type is self
+        if(!game.user.targets.length && this.data.data.target.type == "self") {
+          targets = this.actor.getActiveTokens().slice(0,1);
+        }
+
+        templateData.targets = Array.from(targets).map((target) =>
           this._getTargetChatData(target, templateData)
         );
         if (!templateData.targets.length)
@@ -148,6 +168,10 @@ export default function initItemClass() {
           templateData.data.save.dc;
         templateData.labels.saveAbi =
           CONFIG.DND5E.abilities[templateData.data.save.ability];
+      }
+
+      if (templateData.hasTargetEffects) {
+        templateData.target_effects = this._nonTransferEffects;
       }
 
       if (templateData.data.formula) {

@@ -5,6 +5,10 @@ import { log } from "../util.js";
 
 export default function initActorClass() {
   return class Mars5eActor extends CONFIG.Actor.documentClass {
+    /**
+     * When rolling an ability save, look for a div in the most recent card that we could instead roll.
+     * This will click that box, and return the result of that instead.
+     */ 
     rollAbilitySave(
       abilityId,
       options = {
@@ -13,19 +17,22 @@ export default function initActorClass() {
         fromMars5eChatCard: false,
       }
     ) {
-      if (options.fromMars5eChatCard)
+      if (options.fromMars5eChatCard || !options.event)
         return super.rollAbilitySave(abilityId, options);
 
       const log = document.getElementById("chat-log");
       const card = log.lastElementChild;
       let id = this.token?.id || this.id;
-      // Try to get the token for linked (PC) actors
+
+      // Try to get the token for linked (PC) actors, as that will have in all likelihood been the target
       if (this.data.token.actorLink) {
         const token = canvas.tokens.placeables.find(
           (e) => e.data.actorLink && e.data.actorId === id
         );
         if (token) id = token.id;
       }
+
+      // Find the target
       const targetDiv = card?.querySelector(
         `.mars5e-target[data-target-id="${id}"] .rollable[data-ability="${abilityId}"] `
       );

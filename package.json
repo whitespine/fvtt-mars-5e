@@ -16,5 +16,8 @@
 		"gulp-git": "^2.10.1",
 		"json-stringify-pretty-compact": "^3.0.0",
 		"yargs": "^16.2.0"
+	},
+	"devDependencies": {
+		"sass": "^1.45.0"
 	}
 }

@@ -2,7 +2,7 @@
 	"MARS5E": {
 		"chat-card": {
 			"targets": {
-				"unknown": "no one"
+				"unknown": "No Target"
 			},
 			"error": {
 				"resources": "Not enough resources left!"

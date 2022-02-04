@@ -174,6 +174,8 @@ export default class Mars5eMessage extends ChatMessage {
 
     if (this._onApplyDmg(ev)) return;
 
+    if (this._onApplyEffect(ev, true)) return;
+
     if (!game.user.isGM) return;
 
     if (this._onClickToggleVisibility(ev)) return;
@@ -195,6 +197,8 @@ export default class Mars5eMessage extends ChatMessage {
     if (!game.user.isGM) return;
 
     if (this._toggleResistance(ev)) return;
+
+    if (this._onApplyEffect(ev, false)) return;
   }
 
   onDblClick(ev) {
@@ -413,9 +417,11 @@ export default class Mars5eMessage extends ChatMessage {
 
     ev.preventDefault();
     ev.stopPropagation();
-    this._onSave(roll).then((div) => this.mars5eUpdate(div));
+    this._onSave(roll).then((div) => div && this.mars5eUpdate(div));
     return true;
   }
+
+
 
   async _onSave(div) {
     const actionDiv = div.closest(".mars5e-action");
@@ -423,8 +429,11 @@ export default class Mars5eMessage extends ChatMessage {
     const actor = target?.actor;
     const adv = Number(div.dataset.advantage ?? 1);
     if (!actor) {
-      div.classList.remove("rollable");
-      return div;
+      // Engage secondary workflow - save for each targeted actor, or if none are targeted, each selected actor
+      for(let t of await this._getFallbackTargets()) {
+        await t?.actor.rollAbilitySave(div.dataset.ability, {chatMessage: true});
+      }
+      return null;
     }
     const r = await actor.rollAbilitySave(div.dataset.ability, {
       fastForward: true,
@@ -602,6 +611,7 @@ export default class Mars5eMessage extends ChatMessage {
     });
     return true;
   }
+
   async _onDmg(dmgRoll, update = true) {
     const roll = await new Roll(dmgRoll.dataset.formula).roll();
     const dmgType = dmgRoll.dataset.dmgType;
@@ -709,7 +719,7 @@ export default class Mars5eMessage extends ChatMessage {
 
   async _updateApplyDmgAmount(dmgDiv) {
     if (!dmgDiv) return;
-    const applyMenu = dmgDiv.querySelector(".mars5e-apply-dmg-menu");
+    const applyMenu = dmgDiv.querySelector(".mars5e-apply-menu");
     if (!applyMenu) return;
     const results = Array.from(
       dmgDiv.querySelectorAll(
@@ -818,9 +828,53 @@ export default class Mars5eMessage extends ChatMessage {
       target.dispatchEvent(new Event("focusout"));
     });
   }
+  
+  
+  _onApplyEffect(ev, rightClick) {
+    const button = ev.target.closest(".target-effects .effect-button");
+    if (!button) return false;
+    this._applyEffect(ev, button, rightClick);
+    return true;
+  }
+
+  async _applyEffect(ev, button, onOrOff) {
+    // Needed to retrieve effects when attempting to apply them to a target
+    const effectDiv = ev.target.closest(".effect");
+    const effectId = effectDiv?.dataset.effectId;
+    if (!effectId) return null;
+
+    const item = this.item;
+    const targets = await this._getFallbackTargets(button);
+    // const targetIds = targets.map(t => t.id);
+    // const roll = this.data.roll ? this.roll : null;
+    console.warn("Doin stuff");
+
+    if (onOrOff) {
+      // Apply non-transfer effects to targets.
+      // applyNonTransferEffects(activate, targets, { whisper = false, spellLevel = 0, damageTotal = null, itemCardId = null, critical = false, fumble = false, tokenId: tokenId, effectsToApply = [], removeMatchLabel = false }) {
+      // doEffects(item, activate, targets = undefined, { whisper = false, spellLevel = 0, damageTotal = null, itemCardId = null, critical = false, fumble = false, effectsToApply = [], removeMatchLabel = false }) {
+      window.DAE.doEffects(this.item, true, targets, {
+        whisper: false,
+        spellLevel: this.item.data.data.level, 
+        // damageTotal: roll?.totalDamage,
+        // critical: roll?.isCrit,
+        itemCardId: this.id,
+        effectsToApply: [effectId]
+      });
+    } else {
+      // Get the item's effect
+      let itemEffect = this.item.effects.get(effectId);
+      for(let t of targets) {
+        // Find the matching effect by id
+        let targetEffect = t.actor.effects.find(eff => eff.data.label == itemEffect.data.label);
+        window.DAE.deleteActiveEffect(t.document.uuid, this.item.uuid, [], [targetEffect.id]);
+      }
+    }
+
+  }
 
   _onApplyDmg(ev) {
-    const menu = ev.target.closest(".mars5e-apply-dmg-menu");
+    const menu = ev.target.closest(".damage .mars5e-apply-menu");
     if (!menu) return false;
     this._applyDmg(ev, menu);
     return true;
@@ -895,6 +949,7 @@ export default class Mars5eMessage extends ChatMessage {
     await item.updateTargets();
   }
 
+  // Needed to retrieve targets when apply button is pressed
   _getTarget(el) {
     if (!canvas?.ready) return null; // sadly needed for the creation of a token instance
     const targetDiv = el.closest(".mars5e-target");
@@ -911,7 +966,6 @@ export default class Mars5eMessage extends ChatMessage {
     if (data) return new Config.Token.objectClass(data);
     return null;
   }
-
   scrollIntoView() {
     const card = this.card.closest(".message");
     if (!card) return;
@@ -972,6 +1026,9 @@ export default class Mars5eMessage extends ChatMessage {
   }
 
   async mars5eUpdate(div) {
+    // Commit any changes to this message's contents to the DB, & send those changes over socket
+    // Also: Perform statistical updates based on this div's closest target sections
+    // Also: Update damage applicator hovers
     if (!this.id) return;
     if (div) {
       const dmgDiv = div.closest(".damage");
@@ -1083,5 +1140,42 @@ export default class Mars5eMessage extends ChatMessage {
       await Mars5eUserStatistics.update(game.user, message.mars5eStatistics);
       message.resetStatistics();
     }
+  }
+  
+  // Returns targets. If no targets, returns controlled. If no controlled, return user actor. If no user actor, return []
+  // If a div is provided, then return the token corresponding to its target-div if possible
+  // Results will be 5eTokens
+  async _getFallbackTargets(targetDiv) {
+    // Try div first
+    if(targetDiv) {
+      let resolved = await this._getTarget(targetDiv);
+      if(resolved) {
+        return [resolved];
+      }
+    }
+
+    // Then targets
+    if(game.user.targets.size) {
+      return Array.from(game.user.targets);
+    }
+    
+    // Then selected
+    if(canvas.tokens.controlled.length) {
+      return canvas.tokens.controlled;
+    }
+
+    // Then user token. Just take the first one
+    if(game.user.character) {
+      let actorId = game.user.character.id;
+      let tokenData = scene.tokens.find((e) => e.data.actorId === actorId);
+      if(tokenData) {
+        let token = canvas.tokens.get(tokenData.id)
+        if(token) {
+          return [token];
+        }
+      }
+    }
+
+    return [];
   }
 }

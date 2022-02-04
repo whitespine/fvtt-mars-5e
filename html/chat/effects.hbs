@@ -1,0 +1,13 @@
+{{#if this}}
+<div class="mars5e-action target-effects">
+    <label>{{localize 'DND5E.Effects'}}</label>
+    <div class="flexcol">
+        {{#each @root.effects}}
+        <div class="flexrow effect" data-effect-id="{{this.id}}">
+            <img class="effect-button" src="{{this.data.icon}}" title="Toggle Effect"/>
+            <span class="effect-label">{{this.data.label}}</span>
+        </div>
+        {{/each}}
+    </div>
+</div>
+{{/if}}

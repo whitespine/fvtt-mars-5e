@@ -6,42 +6,45 @@
 				<a class='mars5e-toggle-target-visibility'></a>
 				{{/if}}
     </div>
+
     {{#if data.hasAttack}}
     <div class="mars5e-action attack mars5e-toggleable">
         <label>{{localize 'DND5E.Attack'}}</label>
         <a class="rollable roll-d20" title="{{data.attack.flavor}}" data-advantage="{{data.attack.advantage}}">{{data.attack.mod}}</a>
     </div>
     {{/if}}
-		{{!-- {{else}} --}}
-		{{#if data.hasSave}}
-			<div class="mars5e-action save mars5e-toggleable">
-				<label>{{localize 'DND5E.SavingThrow'}} ({{data.labels.saveAbi}})</label>
-				<a class="rollable roll-d20" data-dc="{{data.data.save.dc}}" data-ability="{{data.data.save.ability}}">{{data.labels.save}}</a>
-			</div>
-			{{#if data.hasDamage}}
-			{{#unless data.hasAreaTarget}}
-			{{#unless data.hasAttack}}
-				{{> 'modules/mars-5e/html/chat/dmg.hbs' data.damage}}
-			{{/unless}}
-			{{/unless}}
-			{{/if}}
-		{{else}}
-			{{#unless data.hasAttack}}
-			{{#unless data.isHealing}}
-				{{> 'modules/mars-5e/html/chat/dmg.hbs' data.damage}}
-			{{/unless}}
-			{{/unless}}
-		{{/if}}
-
-		{{#if data.isHealing}}
-			{{> 'modules/mars-5e/html/chat/dmg.hbs' data.damage}}
-		{{/if}}
-
-		{{#if data.formula}}
-		<div class="mars5e-action">
-			<label>{{ localize "DND5E.OtherFormula"}}</label>
-			<a class="rollable" data-formula="{{data.formula.formula}}">{{data.formula.formula}}</a>
+	
+	{{#if data.hasSave}}
+		<div class="mars5e-action save mars5e-toggleable">
+			<label>{{localize 'DND5E.SavingThrow'}} ({{data.labels.saveAbi}})</label>
+			<a class="rollable roll-d20" data-dc="{{data.data.save.dc}}" data-ability="{{data.data.save.ability}}">{{data.labels.save}}</a>
 		</div>
+		{{#if data.hasDamage}}
+		{{#unless data.hasAreaTarget}}
+		{{#unless data.hasAttack}}
+			{{> 'modules/mars-5e/html/chat/dmg.hbs' data.damage}}
+		{{/unless}}
+		{{/unless}}
 		{{/if}}
-		{{!-- {{/if}} --}}
+	{{else}}
+		{{#unless data.hasAttack}}
+		{{#unless data.isHealing}}
+			{{> 'modules/mars-5e/html/chat/dmg.hbs' data.damage}}
+		{{/unless}}
+		{{/unless}}
+	{{/if}}
+
+	{{#if data.formula}}
+	<div class="mars5e-action">
+		<label>{{ localize "DND5E.OtherFormula"}}</label>
+		<a class="rollable" data-formula="{{data.formula.formula}}">{{data.formula.formula}}</a>
+	</div>
+	{{/if}}
+	{{#if data.isHealing}}
+		{{> 'modules/mars-5e/html/chat/dmg.hbs' data.damage}}
+	{{/if}}	
+	
+	{{#if data.hasTargetEffects}}
+		{{> 'modules/mars-5e/html/chat/effects.hbs' data.effects}}
+	{{/if}}
 </div>
