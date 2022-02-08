@@ -194,11 +194,12 @@ export default class Mars5eMessage extends ChatMessage {
 
     if (this._toggleCrit(ev)) return;
 
+    if (this._onApplyEffect(ev, false)) return;
+
     if (!game.user.isGM) return;
 
     if (this._toggleResistance(ev)) return;
 
-    if (this._onApplyEffect(ev, false)) return;
   }
 
   onDblClick(ev) {
@@ -843,11 +844,9 @@ export default class Mars5eMessage extends ChatMessage {
     const effectId = effectDiv?.dataset.effectId;
     if (!effectId) return null;
 
-    const item = this.item;
+    ev.preventDefault();
+    ev.stopPropagation();
     const targets = await this._getFallbackTargets(button);
-    // const targetIds = targets.map(t => t.id);
-    // const roll = this.data.roll ? this.roll : null;
-    console.warn("Doin stuff");
 
     if (onOrOff) {
       // Apply non-transfer effects to targets.
@@ -859,7 +858,8 @@ export default class Mars5eMessage extends ChatMessage {
         // damageTotal: roll?.totalDamage,
         // critical: roll?.isCrit,
         itemCardId: this.id,
-        effectsToApply: [effectId]
+        effectsToApply: [effectId],
+        removeMatchLabel: true
       });
     } else {
       // Get the item's effect
@@ -867,7 +867,10 @@ export default class Mars5eMessage extends ChatMessage {
       for(let t of targets) {
         // Find the matching effect by id
         let targetEffect = t.actor.effects.find(eff => eff.data.label == itemEffect.data.label);
-        window.DAE.deleteActiveEffect(t.document.uuid, this.item.uuid, [], [targetEffect.id]);
+        if(targetEffect) {
+          // If found, remove
+          window.DAE.deleteActiveEffect(t.document.uuid, this.item.uuid, [], [targetEffect.id]);
+        }
       }
     }
 
