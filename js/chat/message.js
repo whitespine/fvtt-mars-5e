@@ -164,6 +164,8 @@ export default class Mars5eMessage extends ChatMessage {
 
     if (this._onClickReapply(ev)) return;
 
+    if (this._onApplyEffect(ev, true)) return;
+
     if (!this._eventAllowed(ev)) return;
 
     if (this._onClickAttack(ev)) return;
@@ -173,8 +175,6 @@ export default class Mars5eMessage extends ChatMessage {
     if (this._onClickRoll(ev)) return;
 
     if (this._onApplyDmg(ev)) return;
-
-    if (this._onApplyEffect(ev, true)) return;
 
     if (!game.user.isGM) return;
 
@@ -188,13 +188,13 @@ export default class Mars5eMessage extends ChatMessage {
       );
     if (this._toggleAdv(ev)) return;
 
+    if (this._onApplyEffect(ev, false)) return;
+
     if (!this._eventAllowed(ev)) return;
 
     if (this._toggleHit(ev)) return;
 
     if (this._toggleCrit(ev)) return;
-
-    if (this._onApplyEffect(ev, false)) return;
 
     if (!game.user.isGM) return;
 
@@ -210,7 +210,7 @@ export default class Mars5eMessage extends ChatMessage {
 
   _eventAllowed(ev) {
     return this.isAuthor;
-    return this.permission >= CONST.DOCUMENT_PERMISSION_LEVELS.OWNER;
+    // return this.permission >= CONST.DOCUMENT_PERMISSION_LEVELS.OWNER;
   }
 
   _toggleAdv(ev) {
@@ -846,7 +846,25 @@ export default class Mars5eMessage extends ChatMessage {
 
     ev.preventDefault();
     ev.stopPropagation();
-    const targets = await this._getFallbackTargets(button);
+    let targets = await this._getFallbackTargets(button);
+
+    // 
+    if (!targets.length) {
+      ui.notifications.error(
+        game.i18n.localize("MARS5E.errors.badTargetPermissions")
+      );
+    }
+
+    // Filter by applicable owner
+    if (!game.user.isGM) {
+      targets = targets.filter(t => t.owner);
+    }
+
+    if (!targets.length) {
+      ui.notifications.error(
+        game.i18n.localize("MARS5E.errors.badTargetPermissions")
+      );
+    }
 
     if (onOrOff) {
       // Apply non-transfer effects to targets.
@@ -952,12 +970,13 @@ export default class Mars5eMessage extends ChatMessage {
     await item.updateTargets();
   }
 
-  // Needed to retrieve targets when apply button is pressed
+  // Needed to retrieve targets when apply button is pressed. 
+  // If no target could be recovered, return null. If none was defined (the div lacks a targetId), return undefined.
   _getTarget(el) {
     if (!canvas?.ready) return null; // sadly needed for the creation of a token instance
     const targetDiv = el.closest(".mars5e-target");
     const targetId = targetDiv?.dataset.targetId;
-    if (!targetId) return null;
+    if (!targetId) return undefined; 
     const content = el.closest(".mars5e-card");
     const sceneId = content.dataset.sceneId;
     if (sceneId === canvas.scene.id) {
@@ -969,6 +988,7 @@ export default class Mars5eMessage extends ChatMessage {
     if (data) return new Config.Token.objectClass(data);
     return null;
   }
+
   scrollIntoView() {
     const card = this.card.closest(".message");
     if (!card) return;
@@ -1154,6 +1174,9 @@ export default class Mars5eMessage extends ChatMessage {
       let resolved = await this._getTarget(targetDiv);
       if(resolved) {
         return [resolved];
+      } else if(resolved === null) {
+        // Target wasn't recovered, but we should have been able to. Bail, no other fallback makes sense
+        return [];
       }
     }
 

@@ -22,7 +22,9 @@
 		},
 		"errors": {
 			"userNotOnline": "Cannot roll, owner of this chat card is not online.",
-			"reapplyNotAllowed": "You're not allowed to reapply this item!"
+			"reapplyNotAllowed": "You're not allowed to reapply this item!",
+        	"badTargetPermissions": "You do not have permission to apply effects to these targets.",
+        	"noTargets": "No targets could be inferred for application."
 		},
 		"tool-tip": {
 			"right-click": "Right-click",
