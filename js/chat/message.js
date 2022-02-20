@@ -1193,7 +1193,7 @@ export default class Mars5eMessage extends ChatMessage {
     // Then user token. Just take the first one
     if(game.user.character) {
       let actorId = game.user.character.id;
-      let tokenData = scene.tokens.find((e) => e.data.actorId === actorId);
+      let tokenData = canvas.scene.tokens.find((e) => e.data.actorId === actorId);
       if(tokenData) {
         let token = canvas.tokens.get(tokenData.id)
         if(token) {
